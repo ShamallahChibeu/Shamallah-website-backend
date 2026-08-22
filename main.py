@@ -25,3 +25,16 @@ def read_project(project_id: int, db: Session = Depends(get_db)):
     if db_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     return db_project
+@app.put("/projects/{project_id}", response_model=schemas.ProjectOut)
+def update_project(project_id: int, project: schemas.ProjectCreate, db: Session = Depends(get_db)):
+    db_project = crud.update_project(db, project_id, project)
+    if db_project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return db_project
+
+@app.delete("/projects/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db)):
+    db_project = crud.delete_project(db, project_id)
+    if db_project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"message": "Project deleted successfully"}
