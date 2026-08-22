@@ -15,5 +15,12 @@ class ProjectOut(ProjectCreate):
     id: int
     created_at: datetime
 
-    class Config:
+class Config:
         from_attributes = True
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

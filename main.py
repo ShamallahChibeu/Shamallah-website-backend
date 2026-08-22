@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
-import models, schemas, crud
+import models, schemas, crud, auth
 
 Base.metadata.create_all(bind=engine)
 
@@ -38,3 +38,10 @@ def delete_project(project_id: int, db: Session = Depends(get_db)):
     if db_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     return {"message": "Project deleted successfully"}
+@app.post("/login", response_model=schemas.Token)
+def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == credentials.email).first()
+    if not user or not auth.verify_password(credentials.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    access_token = auth.create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
