@@ -15,8 +15,9 @@ class ProjectOut(ProjectCreate):
     id: int
     created_at: datetime
 
-class Config:
+    class Config:
         from_attributes = True
+
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -24,3 +25,18 @@ class LoginRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class PostCreate(BaseModel):
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: Optional[str] = None
+    cover_image: Optional[str] = None
+    status: Optional[str] = "draft"
+
+class PostOut(PostCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

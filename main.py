@@ -47,3 +47,32 @@ def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     access_token = auth.create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/posts", response_model=schemas.PostOut)
+def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return crud.create_post(db, post)
+
+@app.get("/posts", response_model=list[schemas.PostOut])
+def list_posts(db: Session = Depends(get_db)):
+    return crud.get_posts(db)
+
+@app.get("/posts/{post_id}", response_model=schemas.PostOut)
+def read_post(post_id: int, db: Session = Depends(get_db)):
+    db_post = crud.get_post(db, post_id)
+    if db_post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
+
+@app.put("/posts/{post_id}", response_model=schemas.PostOut)
+def update_post(post_id: int, post: schemas.PostCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_post = crud.update_post(db, post_id, post)
+    if db_post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
+
+@app.delete("/posts/{post_id}")
+def delete_post(post_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_post = crud.delete_post(db, post_id)
+    if db_post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return {"message": "Post deleted successfully"}
