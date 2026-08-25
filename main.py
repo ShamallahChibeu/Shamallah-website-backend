@@ -78,6 +78,14 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: model
         raise HTTPException(status_code=404, detail="Post not found")
     return {"message": "Post deleted successfully"}
 
+@app.post("/messages", response_model=schemas.MessageOut)
+def create_message(message: schemas.MessageCreate, db: Session = Depends(get_db)):
+    return crud.create_message(db, message)
+
+@app.get("/messages", response_model=list[schemas.MessageOut])
+def list_messages(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return crud.get_messages(db)
+
 @app.post("/login", response_model=schemas.Token)
 def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == credentials.email).first()

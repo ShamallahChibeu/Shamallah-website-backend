@@ -13,6 +13,7 @@ def get_projects(db: Session):
 
 def get_project(db: Session, project_id: int):
     return db.query(models.Project).filter(models.Project.id == project_id).first()
+
 def update_project(db: Session, project_id: int, project: schemas.ProjectCreate):
     db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
     if db_project is None:
@@ -61,3 +62,13 @@ def delete_post(db: Session, post_id: int):
     db.delete(db_post)
     db.commit()
     return db_post
+
+def create_message(db: Session, message: schemas.MessageCreate):
+    db_message = models.Message(**message.model_dump())
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+def get_messages(db: Session):
+    return db.query(models.Message).order_by(models.Message.created_at.desc()).all()

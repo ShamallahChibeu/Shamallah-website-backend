@@ -40,3 +40,16 @@ class PostOut(PostCreate):
 
     class Config:
         from_attributes = True
+
+class MessageCreate(BaseModel):
+    name: str
+    email: str
+    subject: Optional[str] = None
+    message: str
+
+class MessageOut(MessageCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
