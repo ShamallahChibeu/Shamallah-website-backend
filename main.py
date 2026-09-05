@@ -86,6 +86,20 @@ def create_message(message: schemas.MessageCreate, db: Session = Depends(get_db)
 def list_messages(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_messages(db)
 
+@app.post("/visits")
+def create_visit(visit: schemas.VisitCreate, db: Session = Depends(get_db)):
+    crud.create_visit(db, visit)
+    return {"status": "ok"}
+
+@app.post("/heartbeat")
+def heartbeat(hb: schemas.HeartbeatCreate, db: Session = Depends(get_db)):
+    crud.upsert_heartbeat(db, hb.session_id)
+    return {"status": "ok"}
+
+@app.get("/analytics", response_model=schemas.AnalyticsSummary)
+def analytics(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return crud.get_analytics_summary(db)
+
 @app.post("/login", response_model=schemas.Token)
 def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == credentials.email).first()

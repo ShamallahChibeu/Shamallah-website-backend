@@ -53,3 +53,17 @@ class MessageOut(MessageCreate):
 
     class Config:
         from_attributes = True
+
+class VisitCreate(BaseModel):
+    path: str
+    session_id: str
+
+class HeartbeatCreate(BaseModel):
+    session_id: str
+
+class AnalyticsSummary(BaseModel):
+    total_visits: int
+    unique_visitors: int
+    online_now: int
+    top_pages: list[dict]
+    total_messages: int
