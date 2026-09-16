@@ -34,6 +34,7 @@ class PostCreate(BaseModel):
     excerpt: Optional[str] = None
     content: Optional[str] = None
     cover_image: Optional[str] = None
+    file_url: Optional[str] = None
     status: Optional[str] = "draft"
 
 class PostOut(PostCreate):

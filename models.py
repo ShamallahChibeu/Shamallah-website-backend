@@ -34,6 +34,7 @@ class Post(Base):
     excerpt = Column(Text)
     content = Column(Text)
     cover_image = Column(String)
+    file_url = Column(String)
     status = Column(String, default="draft")
     published_at = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
