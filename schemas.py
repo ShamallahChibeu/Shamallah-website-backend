@@ -9,6 +9,8 @@ class ProjectCreate(BaseModel):
     content: Optional[str] = None
     github_url: Optional[str] = None
     demo_url: Optional[str] = None
+    image_url: Optional[str] = None
+    tags: Optional[str] = None
     status: Optional[str] = "draft"
 
 class ProjectOut(ProjectCreate):

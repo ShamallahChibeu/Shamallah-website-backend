@@ -12,6 +12,8 @@ class Project(Base):
     content = Column(Text)
     github_url = Column(String)
     demo_url = Column(String)
+    image_url = Column(String)
+    tags = Column(String)
     status = Column(String, default="draft")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
