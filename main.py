@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
@@ -15,6 +15,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 @app.get("/")
 def read_root():
@@ -87,13 +93,21 @@ def list_messages(db: Session = Depends(get_db), current_user: models.User = Dep
     return crud.get_messages(db)
 
 @app.post("/visits")
-def create_visit(visit: schemas.VisitCreate, db: Session = Depends(get_db)):
-    crud.create_visit(db, visit)
+def create_visit(visit: schemas.VisitCreate, request: Request, db: Session = Depends(get_db)):
+    ip = get_client_ip(request)
+    crud.create_visit(db, visit.path, ip)
     return {"status": "ok"}
 
 @app.post("/heartbeat")
-def heartbeat(hb: schemas.HeartbeatCreate, db: Session = Depends(get_db)):
-    crud.upsert_heartbeat(db, hb.session_id)
+def heartbeat(request: Request, db: Session = Depends(get_db)):
+    ip = get_client_ip(request)
+    crud.upsert_heartbeat(db, ip)
+    return {"status": "ok"}
+
+@app.post("/clicks")
+def create_click(click: schemas.ClickCreate, request: Request, db: Session = Depends(get_db)):
+    ip = get_client_ip(request)
+    crud.create_click(db, click.type, ip)
     return {"status": "ok"}
 
 @app.get("/analytics", response_model=schemas.AnalyticsSummary)

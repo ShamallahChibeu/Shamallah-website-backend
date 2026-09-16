@@ -59,10 +59,6 @@ class MessageOut(MessageCreate):
 
 class VisitCreate(BaseModel):
     path: str
-    session_id: str
-
-class HeartbeatCreate(BaseModel):
-    session_id: str
 
 class AnalyticsSummary(BaseModel):
     total_visits: int
@@ -70,6 +66,8 @@ class AnalyticsSummary(BaseModel):
     online_now: int
     top_pages: list[dict]
     total_messages: int
+    total_social_clicks: int
+    success_rate: float
 
 class ExperienceCreate(BaseModel):
     title: str
@@ -84,3 +82,6 @@ class ExperienceOut(ExperienceCreate):
 
     class Config:
         from_attributes = True
+
+class ClickCreate(BaseModel):
+    type: str

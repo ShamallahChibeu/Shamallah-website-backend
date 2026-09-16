@@ -75,25 +75,31 @@ def create_message(db: Session, message: schemas.MessageCreate):
 def get_messages(db: Session):
     return db.query(models.Message).order_by(models.Message.created_at.desc()).all()
 
-def create_visit(db: Session, visit: schemas.VisitCreate):
-    db_visit = models.Visit(path=visit.path, session_id=visit.session_id)
+def create_visit(db: Session, path: str, ip_address: str):
+    db_visit = models.Visit(path=path, ip_address=ip_address)
     db.add(db_visit)
     db.commit()
     return db_visit
 
-def upsert_heartbeat(db: Session, session_id: str):
-    hb = db.query(models.Heartbeat).filter(models.Heartbeat.session_id == session_id).first()
+def upsert_heartbeat(db: Session, ip_address: str):
+    hb = db.query(models.Heartbeat).filter(models.Heartbeat.ip_address == ip_address).first()
     if hb:
         hb.last_seen = datetime.utcnow()
     else:
-        hb = models.Heartbeat(session_id=session_id, last_seen=datetime.utcnow())
+        hb = models.Heartbeat(ip_address=ip_address, last_seen=datetime.utcnow())
         db.add(hb)
     db.commit()
     return hb
 
+def create_click(db: Session, click_type: str, ip_address: str):
+    db_click = models.ClickEvent(type=click_type, ip_address=ip_address)
+    db.add(db_click)
+    db.commit()
+    return db_click
+
 def get_analytics_summary(db: Session):
     total_visits = db.query(models.Visit).count()
-    unique_visitors = db.query(models.Visit.session_id).distinct().count()
+    unique_visitors = db.query(models.Visit.ip_address).filter(models.Visit.ip_address.isnot(None)).distinct().count()
     cutoff = datetime.utcnow() - timedelta(minutes=5)
     online_now = db.query(models.Heartbeat).filter(models.Heartbeat.last_seen >= cutoff).count()
     top_pages_query = (
@@ -105,12 +111,17 @@ def get_analytics_summary(db: Session):
     )
     top_pages = [{"path": p, "count": c} for p, c in top_pages_query]
     total_messages = db.query(models.Message).count()
+    total_social_clicks = db.query(models.ClickEvent).count()
+    unique_clickers = db.query(models.ClickEvent.ip_address).filter(models.ClickEvent.ip_address.isnot(None)).distinct().count()
+    success_rate = round((unique_clickers / unique_visitors) * 100, 1) if unique_visitors > 0 else 0.0
     return {
         "total_visits": total_visits,
         "unique_visitors": unique_visitors,
         "online_now": online_now,
         "top_pages": top_pages,
         "total_messages": total_messages,
+        "total_social_clicks": total_social_clicks,
+        "success_rate": success_rate,
     }
 
 def create_experience(db: Session, experience: schemas.ExperienceCreate):

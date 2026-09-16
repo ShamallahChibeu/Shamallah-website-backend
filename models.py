@@ -55,13 +55,14 @@ class Visit(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     path = Column(String, nullable=False)
-    session_id = Column(String, index=True, nullable=False)
+    session_id = Column(String, index=True)
+    ip_address = Column(String, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Heartbeat(Base):
     __tablename__ = "heartbeats"
 
-    session_id = Column(String, primary_key=True)
+    ip_address = Column(String, primary_key=True)
     last_seen = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 class Experience(Base):
@@ -75,3 +76,11 @@ class Experience(Base):
     status = Column(String, default="draft")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class ClickEvent(Base):
+    __tablename__ = "click_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(String, nullable=False)
+    ip_address = Column(String, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
