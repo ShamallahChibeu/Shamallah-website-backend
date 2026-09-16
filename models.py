@@ -62,3 +62,15 @@ class Heartbeat(Base):
 
     session_id = Column(String, primary_key=True)
     last_seen = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class Experience(Base):
+    __tablename__ = "experiences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    date_range = Column(String, nullable=False)
+    description = Column(Text)
+    tags = Column(String)
+    status = Column(String, default="draft")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

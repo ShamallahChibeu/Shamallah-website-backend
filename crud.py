@@ -112,3 +112,34 @@ def get_analytics_summary(db: Session):
         "top_pages": top_pages,
         "total_messages": total_messages,
     }
+
+def create_experience(db: Session, experience: schemas.ExperienceCreate):
+    db_experience = models.Experience(**experience.model_dump())
+    db.add(db_experience)
+    db.commit()
+    db.refresh(db_experience)
+    return db_experience
+
+def get_experiences(db: Session):
+    return db.query(models.Experience).order_by(models.Experience.id.desc()).all()
+
+def get_experience(db: Session, experience_id: int):
+    return db.query(models.Experience).filter(models.Experience.id == experience_id).first()
+
+def update_experience(db: Session, experience_id: int, experience: schemas.ExperienceCreate):
+    db_experience = db.query(models.Experience).filter(models.Experience.id == experience_id).first()
+    if db_experience is None:
+        return None
+    for key, value in experience.model_dump().items():
+        setattr(db_experience, key, value)
+    db.commit()
+    db.refresh(db_experience)
+    return db_experience
+
+def delete_experience(db: Session, experience_id: int):
+    db_experience = db.query(models.Experience).filter(models.Experience.id == experience_id).first()
+    if db_experience is None:
+        return None
+    db.delete(db_experience)
+    db.commit()
+    return db_experience

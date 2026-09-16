@@ -69,3 +69,17 @@ class AnalyticsSummary(BaseModel):
     online_now: int
     top_pages: list[dict]
     total_messages: int
+
+class ExperienceCreate(BaseModel):
+    title: str
+    date_range: str
+    description: Optional[str] = None
+    tags: Optional[str] = None
+    status: Optional[str] = "draft"
+
+class ExperienceOut(ExperienceCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

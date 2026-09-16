@@ -100,6 +100,35 @@ def heartbeat(hb: schemas.HeartbeatCreate, db: Session = Depends(get_db)):
 def analytics(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_analytics_summary(db)
 
+@app.post("/experiences", response_model=schemas.ExperienceOut)
+def create_experience(experience: schemas.ExperienceCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return crud.create_experience(db, experience)
+
+@app.get("/experiences", response_model=list[schemas.ExperienceOut])
+def list_experiences(db: Session = Depends(get_db)):
+    return crud.get_experiences(db)
+
+@app.get("/experiences/{experience_id}", response_model=schemas.ExperienceOut)
+def read_experience(experience_id: int, db: Session = Depends(get_db)):
+    db_experience = crud.get_experience(db, experience_id)
+    if db_experience is None:
+        raise HTTPException(status_code=404, detail="Experience not found")
+    return db_experience
+
+@app.put("/experiences/{experience_id}", response_model=schemas.ExperienceOut)
+def update_experience(experience_id: int, experience: schemas.ExperienceCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_experience = crud.update_experience(db, experience_id, experience)
+    if db_experience is None:
+        raise HTTPException(status_code=404, detail="Experience not found")
+    return db_experience
+
+@app.delete("/experiences/{experience_id}")
+def delete_experience(experience_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_experience = crud.delete_experience(db, experience_id)
+    if db_experience is None:
+        raise HTTPException(status_code=404, detail="Experience not found")
+    return {"message": "Experience deleted successfully"}
+
 @app.post("/login", response_model=schemas.Token)
 def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == credentials.email).first()
