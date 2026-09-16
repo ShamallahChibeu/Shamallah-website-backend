@@ -75,6 +75,14 @@ def create_message(db: Session, message: schemas.MessageCreate):
 def get_messages(db: Session):
     return db.query(models.Message).order_by(models.Message.created_at.desc()).all()
 
+def delete_message(db: Session, message_id: int):
+    db_message = db.query(models.Message).filter(models.Message.id == message_id).first()
+    if db_message is None:
+        return None
+    db.delete(db_message)
+    db.commit()
+    return db_message
+
 def create_visit(db: Session, path: str, ip_address: str):
     db_visit = models.Visit(path=path, ip_address=ip_address)
     db.add(db_visit)

@@ -92,6 +92,13 @@ def create_message(message: schemas.MessageCreate, db: Session = Depends(get_db)
 def list_messages(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_messages(db)
 
+@app.delete("/messages/{message_id}")
+def delete_message(message_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_message = crud.delete_message(db, message_id)
+    if db_message is None:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return {"message": "Message deleted successfully"}
+
 @app.post("/visits")
 def create_visit(visit: schemas.VisitCreate, request: Request, db: Session = Depends(get_db)):
     ip = get_client_ip(request)
